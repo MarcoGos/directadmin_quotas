@@ -16,6 +16,8 @@
                 "description": "DirectAdmin host informatie",
                 "data": {
                     "hostname": "Hostnaam",
+                    "port": "Poort",
+                    "domain": "Domein",
                     "username": "Gebruikersnaam",
                     "password": "Wachtwoord"
                 }
