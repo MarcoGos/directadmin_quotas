@@ -1,0 +1,81 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Apparaat is al geconfigureerd",
+            "reconfigure_successful": "Herconfiguratie is geslaagd"
+        },
+        "error": {
+            "cannot_connect": "Verbinding mislukt",
+            "invalid_auth": "Ongeldige autorisatie",
+            "domain_not_found": "Domein niet gevonden",
+            "timeout": "Verbindingstime-out",
+            "unknown": "Onverwachte fout"
+        },
+        "step": {
+            "user": {
+                "description": "DirectAdmin host informatie",
+                "data": {
+                    "hostname": "Hostnaam",
+                    "username": "Gebruikersnaam",
+                    "password": "Wachtwoord"
+                }
+            },
+            "accounts": {
+                "description": "Selecteer de accounts die u wilt volgen",
+                "title": "Accounts",
+                "data": {
+                    "accounts": "Accounts"
+                }
+            },
+            "reconfigure": {
+                "description": "DirectAdmin host informatie",
+                "data": {
+                    "hostname": "Hostnaam",
+                    "port": "Poort",
+                    "domain": "Domein",
+                    "username": "Gebruikersnaam",
+                    "password": "Wachtwoord"
+                }
+            }
+        }
+    },
+    "options": {
+        "abort": {
+            "changes_successful": "Wijzigingen succesvol opgeslagen."
+        },
+        "step": {
+            "accounts": {
+                "description": "Selecteer de accounts die u wilt volgen",
+                "title": "Accounts",
+                "data": {
+                    "accounts": "Accounts"
+                }
+            }
+        }
+    },
+    "entity": {
+        "sensor": {
+            "quota": {
+                "name": "Quotum"
+            },
+            "usage": {
+                "name": "Gebruikt"
+            },
+            "percentage_usage": {
+                "name": "Gebruikt (%)"
+            },
+            "free": {
+                "name": "Vrij"
+            },
+            "percentage_free": {
+                "name": "Vrij (%)"
+            },
+            "sent": {
+                "name": "Verzonden"
+            },
+            "send_limit": {
+                "name": "Verzendlimiet"
+            }
+        }
+    }
+}

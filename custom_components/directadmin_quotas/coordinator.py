@@ -1,0 +1,49 @@
+"""Coordinator for DirectAdmin Quotas integration."""
+
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+import logging
+from homeassistant import config_entries
+from homeassistant.helpers.update_coordinator import UpdateFailed, DataUpdateCoordinator
+from homeassistant.core import HomeAssistant
+from .api import QuotasAPI
+from .const import DEFAULT_SYNC_INTERVAL, DOMAIN, CONF_ACCOUNTS
+
+_LOGGER: logging.Logger = logging.getLogger(__package__)
+
+
+class DirectAdminQuotasUpdateCoordinator(DataUpdateCoordinator):
+    """Class to manage fetching data from the API."""
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        api: QuotasAPI,
+        config_entry: config_entries.ConfigEntry,
+    ) -> None:
+        """Initialize."""
+        self.api = api
+        self.platforms: list[str] = []
+        self.last_updated = None
+        self._hass = hass
+
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=DOMAIN,
+            update_interval=timedelta(seconds=DEFAULT_SYNC_INTERVAL),
+            config_entry=config_entry,
+        )
+
+    async def _async_update_data(self):
+        """Update data via library."""
+        try:
+            data = {}
+            data[CONF_ACCOUNTS] = await self.api.get_quotas()
+            self.last_updated = datetime.now().replace(
+                tzinfo=ZoneInfo(self._hass.config.time_zone)
+            )
+            return data
+        except Exception as exception:
+            _LOGGER.error("Error _async_update_data: %s", exception)
+            raise UpdateFailed() from exception
