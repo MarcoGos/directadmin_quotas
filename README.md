@@ -7,7 +7,7 @@
 ![Project Maintenance][maintenance-shield]
 [![Community Forum][forum-shield]][forum]
 
-DirectAdmin is an open-source IMAP and POP3 server for Unix-like operating systems, written primarily with security in mind. Timo Sirainen originated DirectAdmin and first released it in July 2002. DirectAdmin developers primarily aim to produce a lightweight, fast and easy-to-set-up open-source email server. The primary purpose of DirectAdmin is to act as a mail storage server. The mail is delivered to the server using some mail delivery agent and is stored for later access with an email client.[^3]
+DirectAdmin is a graphical web-based web hosting control panel allowing administration of websites through a web browser. The software is configurable to enable standalone, reseller, and shared web hosting from a single instance. DirectAdmin also permits management of server tasks and upgrades to package software from within the control panel, simplifying server and hosting configuration.[^3]
 
 Within DirectAdmin you can set quota's. This custom integration will retreive these quota's and present them within Home Assistant.
 
@@ -45,6 +45,10 @@ The following entities will be created for every selected account (device):
     - Total used space
 - Used (%): 
     - Percentage used based on quota
+- Limit:
+    - Max. number of mails to send per day
+- Sent:
+    - Number of mails sent today
 
 The entity information is updated every 60 minutes.
 
