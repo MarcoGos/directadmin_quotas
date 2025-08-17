@@ -71,6 +71,16 @@ class QuotasAPI:
 
         self._quotas = quotas
 
+    async def test_connection(self):
+        """Test the connection to the DirectAdmin server."""
+        try:
+            await self.send_request("CMD_API_LOGIN_TEST")
+        except Exception as e:
+            _LOGGER.error("Failed to connect to DirectAdmin: %s", e)
+            raise DirectAdminConnectionError(
+                "Authentication failed or connection error."
+            ) from e
+
     async def test_domain(self):
         """Test if the given domain is valid."""
         valid_domains = await self.send_request("CMD_API_SHOW_DOMAINS")
@@ -97,6 +107,10 @@ class QuotasAPI:
             )
             return {}
         return await response.json()
+
+
+class DirectAdminConnectionError(Exception):
+    """Exception raised for connection errors with DirectAdmin."""
 
 
 class DirectAdminAuthError(Exception):

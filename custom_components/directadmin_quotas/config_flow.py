@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import logging
 from typing import Any
-from aiohttp.client_exceptions import ClientConnectorDNSError, ConnectionTimeoutError
+from aiohttp.client_exceptions import (
+    ClientConnectorDNSError,
+    ConnectionTimeoutError,
+)
 
 import voluptuous as vol
 
@@ -22,7 +25,12 @@ from .const import (
     CONF_PASSWORD,
     CONF_ACCOUNTS,
 )
-from .api import QuotasAPI, DirectAdminAuthError, DomainNotFoundError
+from .api import (
+    QuotasAPI,
+    DirectAdminAuthError,
+    DomainNotFoundError,
+    DirectAdminConnectionError,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -118,7 +126,7 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] | None = {}
 
         if user_input is not None:
-            await self.async_set_unique_id(user_input[CONF_HOSTNAME])
+            await self.async_set_unique_id(user_input[CONF_DOMAIN])
             self._abort_if_unique_id_configured()
 
             try:
@@ -130,8 +138,9 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     username=user_input[CONF_USERNAME],
                     password=user_input[CONF_PASSWORD],
                 )
+                await api.test_connection()
                 await api.test_domain()
-            except ClientConnectorDNSError:
+            except (ClientConnectorDNSError, DirectAdminConnectionError):
                 errors["base"] = "cannot_connect"
             except DirectAdminAuthError:
                 errors["base"] = "invalid_auth"
@@ -179,7 +188,7 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             selected_accounts = user_input[CONF_ACCOUNTS]
             self._config[CONF_ACCOUNTS] = selected_accounts
             return self.async_create_entry(
-                title=self._config[CONF_HOSTNAME], data=self._config
+                title=f"{self._config[CONF_DOMAIN]}", data=self._config
             )
 
         api = QuotasAPI(
@@ -218,8 +227,9 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     username=user_input[CONF_USERNAME],
                     password=user_input[CONF_PASSWORD],
                 )
+                await api.test_connection()
                 await api.test_domain()
-            except ClientConnectorDNSError:
+            except (ClientConnectorDNSError, DirectAdminConnectionError):
                 errors["base"] = "cannot_connect"
             except DirectAdminAuthError:
                 errors["base"] = "invalid_auth"

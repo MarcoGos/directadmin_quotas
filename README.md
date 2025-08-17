@@ -46,6 +46,7 @@ When using 2FA for your account, you need to create a login key:
 - Provide a random Key Value
 - Set "Expires on" to "Never"
 - Allow the following commands:
+  - CMD_API_LOGIN_TEST
   - CMD_API_POP
   - CMD_API_SHOW_DOMAINS
 - Enter your current password for your account and press Create
