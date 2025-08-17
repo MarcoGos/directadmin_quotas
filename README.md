@@ -28,7 +28,28 @@ Via HACS:
 
 ## Setup
 
-Provide a hostname, port, domain, username and password and select the accounts you want to follow.
+Provide the following information:
+
+- hostname (don't use "http://" or "https://" or a trailing slash)
+- port, usually this is port 2222
+- domain (e.g. "yourdomain.com")
+- username
+- password
+
+and select the accounts you want to follow.
+
+When using 2FA for your account, you need to create a login key:
+
+- Go to https://yourserver.com:2222/CMD_LOGIN_KEYS
+- Create new login key
+- Provide a name like "homeassistant" so you know where this key is used
+- Provide a random Key Value
+- Set "Expires on" to "Never"
+- Allow the following commands:
+  - CMD_API_POP
+  - CMD_API_SHOW_DOMAINS
+- Enter your current password for your account and press Create
+- Use the details of the newly created key as your password
 
 ## What to expect?
 
@@ -45,7 +66,7 @@ The following entities will be created for every selected account (device):
     - Total used space
 - Used (%): 
     - Percentage used based on quota
-- Limit:
+- Send Limit:
     - Max. number of mails to send per day
 - Sent:
     - Number of mails sent today
