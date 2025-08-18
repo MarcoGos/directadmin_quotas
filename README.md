@@ -32,13 +32,12 @@ Provide the following information:
 
 - hostname (don't use "http://" or "https://" or a trailing slash)
 - port, usually this is port 2222
-- domain (e.g. "yourdomain.com")
 - username
 - password
+- select a domain
+- select one of more accounts you want to follow
 
-and select the accounts you want to follow.
-
-When using 2FA for your account, you need to create a login key:
+When using 2FA for your account, you need to create a login key in DirectAdmin:
 
 - Go to https://yourserver.com:2222/CMD_LOGIN_KEYS
 - Create new login key
