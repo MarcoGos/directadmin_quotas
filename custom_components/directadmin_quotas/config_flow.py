@@ -30,6 +30,7 @@ from .api import (
     DirectAdminAuthError,
     DomainNotFoundError,
     DirectAdminConnectionError,
+    InvalidHostnameException,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -126,26 +127,22 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] | None = {}
 
         if user_input is not None:
-            await self.async_set_unique_id(user_input[CONF_DOMAIN])
-            self._abort_if_unique_id_configured()
-
             try:
                 api = QuotasAPI(
                     hass=self.hass,
                     hostname=user_input[CONF_HOSTNAME],
                     port=user_input.get(CONF_PORT, 2222),
-                    domain=user_input.get(CONF_DOMAIN, ""),
+                    domain="",
                     username=user_input[CONF_USERNAME],
                     password=user_input[CONF_PASSWORD],
                 )
                 await api.test_connection()
-                await api.test_domain()
+            except InvalidHostnameException:
+                errors["base"] = "invalid_hostname"
             except (ClientConnectorDNSError, DirectAdminConnectionError):
                 errors["base"] = "cannot_connect"
             except DirectAdminAuthError:
                 errors["base"] = "invalid_auth"
-            except DomainNotFoundError:
-                errors["base"] = "domain_not_found"
             except ConnectionTimeoutError:
                 errors["base"] = "timeout"
             except Exception:  # pylint: disable=broad-except
@@ -154,16 +151,14 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 self._config[CONF_HOSTNAME] = user_input[CONF_HOSTNAME]
                 self._config[CONF_PORT] = user_input.get(CONF_PORT, 2222)
-                self._config[CONF_DOMAIN] = user_input.get(CONF_DOMAIN, "")
                 self._config[CONF_USERNAME] = user_input[CONF_USERNAME]
                 self._config[CONF_PASSWORD] = user_input[CONF_PASSWORD]
-                return await self.async_step_accounts()
+                return await self.async_step_domain()
 
         data_schema = vol.Schema(
             {
                 vol.Required(CONF_HOSTNAME): str,
                 vol.Optional(CONF_PORT, default=2222): int,
-                vol.Optional(CONF_DOMAIN): str,
                 vol.Required(CONF_USERNAME): str,
                 vol.Required(CONF_PASSWORD): str,
             }
@@ -177,6 +172,57 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
             errors=errors,
         )
+    
+    async def async_step_domain(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        errors: dict[str, str] | None = {}
+
+        if user_input is not None:
+            await self.async_set_unique_id(user_input[CONF_DOMAIN])
+            self._abort_if_unique_id_configured()
+
+            try:
+                api = QuotasAPI(
+                    hass=self.hass,
+                    hostname=self._config[CONF_HOSTNAME],
+                    port=self._config.get(CONF_PORT, 2222),
+                    domain=user_input[CONF_DOMAIN],
+                    username=self._config[CONF_USERNAME],
+                    password=self._config[CONF_PASSWORD],
+                )
+                await api.test_connection()
+                await api.test_domain()
+            # except (ClientConnectorDNSError, DirectAdminConnectionError):
+            #     errors["base"] = "cannot_connect"
+            # except DirectAdminAuthError:
+            #     errors["base"] = "invalid_auth"
+            except DomainNotFoundError:
+                errors["base"] = "domain_not_found"
+            except ConnectionTimeoutError:
+                errors["base"] = "timeout"
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+            else:
+                self._config[CONF_DOMAIN] = user_input[CONF_DOMAIN]
+                return await self.async_step_accounts()
+
+        api = QuotasAPI(
+            hass=self.hass,
+            hostname=self._config[CONF_HOSTNAME],
+            port=self._config.get(CONF_PORT, 2222),
+            domain="",
+            username=self._config[CONF_USERNAME],
+            password=self._config[CONF_PASSWORD],
+        )
+        domains = await api.get_domains()
+
+        data_schema = vol.Schema(
+            {vol.Required(CONF_DOMAIN): vol.In(domains)}
+        )
+
+        return self.async_show_form(step_id="domain", data_schema=data_schema)
 
     async def async_step_accounts(
         self, user_input: dict[str, Any] | None = None
@@ -215,7 +261,8 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle a reconfiguration flow initialized by the user."""
         errors: dict[str, str] | None = {}
-        entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])  # type: ignore
+        entry = self.hass.config_entries.async_get_entry(self.context["entry_id"]) # type: ignore
+        entry_data = entry.data if entry else {}
 
         if user_input is not None:
             try:
@@ -223,12 +270,14 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     hass=self.hass,
                     hostname=user_input[CONF_HOSTNAME],
                     port=user_input.get(CONF_PORT, 2222),
-                    domain=user_input[CONF_DOMAIN],
+                    domain=entry_data.get(CONF_DOMAIN, ""),
                     username=user_input[CONF_USERNAME],
                     password=user_input[CONF_PASSWORD],
                 )
                 await api.test_connection()
                 await api.test_domain()
+            except InvalidHostnameException:
+                errors["base"] = "invalid_hostname"
             except (ClientConnectorDNSError, DirectAdminConnectionError):
                 errors["base"] = "cannot_connect"
             except DirectAdminAuthError:
@@ -252,7 +301,6 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             {
                 vol.Required(CONF_HOSTNAME): str,
                 vol.Optional(CONF_PORT, default=2222): int,
-                vol.Optional(CONF_DOMAIN): str,
                 vol.Required(CONF_USERNAME): str,
                 vol.Required(CONF_PASSWORD): str,
             }
@@ -275,3 +323,4 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> DirectAdminQuotasOptionsFlowHandler:
         """Options callback for DirectAdmin Quotas."""
         return DirectAdminQuotasOptionsFlowHandler()
+

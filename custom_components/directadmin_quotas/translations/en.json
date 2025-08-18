@@ -5,6 +5,7 @@
             "reconfigure_successful": "Re-configuration was successful"
         },        
         "error": {
+            "invalid_hostname": "Invalid hostname name",
             "cannot_connect": "Failed to connect",
             "invalid_auth": "Failed authorization",
             "domain_not_found": "Domain not found",
@@ -20,6 +21,13 @@
                     "domain": "Domain",
                     "username": "Username",
                     "password": "Password"
+                }
+            },
+            "domain": {
+                "description": "Select the domain you want to track",
+                "title": "Domain",
+                "data": {
+                    "domain": "Domain"
                 }
             },
             "accounts": {

@@ -5,6 +5,7 @@
             "reconfigure_successful": "Herconfiguratie is geslaagd"
         },
         "error": {
+            "invalid_hostname": "Ongeldige hostnaam",
             "cannot_connect": "Verbinding mislukt",
             "invalid_auth": "Ongeldige autorisatie",
             "domain_not_found": "Domein niet gevonden",
@@ -20,6 +21,13 @@
                     "domain": "Domein",
                     "username": "Gebruikersnaam",
                     "password": "Wachtwoord"
+                }
+            },
+            "domain": {
+                "description": "Selecteer het domein dat u wilt volgen",
+                "title": "Domein",
+                "data": {
+                    "domain": "Domein"
                 }
             },
             "accounts": {

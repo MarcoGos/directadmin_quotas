@@ -1,8 +1,8 @@
 """DirectAdmin Quotas API"""
 
 import logging
+import re
 from aiohttp import BasicAuth
-
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -37,11 +37,20 @@ class QuotasAPI:
         self._username = username
         self._password = password
         self._session = async_get_clientsession(self._hass)
+        if self._hostname:
+            self.__check_hostname()
 
     async def get_quotas(self):
         """Get the quotas for all mailboxes."""
         await self.update_quotas()
         return self._quotas
+    
+    async def get_domains(self):
+        """Get the list of domains."""
+        json_data = await self.send_request("CMD_API_SHOW_DOMAINS")
+        if json_data:
+            return json_data
+        return []
 
     async def update_quotas(self):
         """Update the quotas for all mailboxes."""
@@ -80,6 +89,12 @@ class QuotasAPI:
             raise DirectAdminConnectionError(
                 "Authentication failed or connection error."
             ) from e
+        
+    def __check_hostname(self):
+        pattern = re.compile(r"^[a-zA-Z0-9.-]+$")  # Simple regex to validate hostname
+        if not pattern.match(self._hostname):
+            raise InvalidHostnameException("Invalid hostname format")
+
 
     async def test_domain(self):
         """Test if the given domain is valid."""
@@ -119,3 +134,6 @@ class DirectAdminAuthError(Exception):
 
 class DomainNotFoundError(Exception):
     """Exception raised when the specified domain is not found."""
+
+class InvalidHostnameException(Exception):
+    """Exception raised for invalid hostname format."""
