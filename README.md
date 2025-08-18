@@ -9,7 +9,7 @@
 
 DirectAdmin is a graphical web-based web hosting control panel allowing administration of websites through a web browser. The software is configurable to enable standalone, reseller, and shared web hosting from a single instance. DirectAdmin also permits management of server tasks and upgrades to package software from within the control panel, simplifying server and hosting configuration.[^3]
 
-Within DirectAdmin you can set quota's. This custom integration will retreive these quota's and present them within Home Assistant.
+Within DirectAdmin you can set quotas on e-mail accounts. This custom integration will retreive these quota's and present them within Home Assistant.
 
 ## Prerequirements
 
@@ -31,7 +31,7 @@ Via HACS:
 Provide the following information:
 
 - hostname (don't use "http://" or "https://" or a trailing slash)
-- port, usually this is port 2222
+- port (defaults to 2222)
 - username
 - password
 - select a domain
@@ -54,7 +54,7 @@ When using 2FA for your account, you need to create a login key in DirectAdmin:
 ## What to expect?
 
 Each selected account will show up as a device.
-The following entities will be created for every selected account (device):
+The following entities will be created per account (device):
 
 - Quota:
     - Quota setup for account. Value will be Unknown if no quota is set.
