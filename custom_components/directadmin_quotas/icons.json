@@ -4,10 +4,10 @@
             "quota": {
                 "default": "mdi:car-speed-limiter"
             },
-            "used": {
+            "usage": {
                 "default": "mdi:database-arrow-up"
             },
-            "percentage_used": {
+            "percentage_usage": {
                 "default": "mdi:gauge",
                 "range": {
                     "0": "mdi:gauge-empty",
