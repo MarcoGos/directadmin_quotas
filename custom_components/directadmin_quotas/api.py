@@ -2,7 +2,12 @@
 
 import logging
 import re
+
 from aiohttp import BasicAuth
+from aiohttp.client_exceptions import (
+    ClientConnectorDNSError,
+    ConnectionTimeoutError,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -42,9 +47,19 @@ class QuotasAPI:
 
     async def get_quotas(self):
         """Get the quotas for all mailboxes."""
-        await self.update_quotas()
+        try:
+            await self.update_quotas()
+        except (ClientConnectorDNSError, DirectAdminConnectionError):
+            _LOGGER.error("Failed to connect to DirectAdmin server.")
+            return
+        except ConnectionTimeoutError:
+            _LOGGER.error("Connection timed out while fetching quotas.")
+            return {}
+        except Exception as e:
+            _LOGGER.error("Unexpected error: Failed to fetch quotas: %s", e)
+            return {}
         return self._quotas
-    
+
     async def get_domains(self):
         """Get the list of domains."""
         json_data = await self.send_request("CMD_API_SHOW_DOMAINS")
@@ -54,7 +69,6 @@ class QuotasAPI:
 
     async def update_quotas(self):
         """Update the quotas for all mailboxes."""
-        self._quotas = {}
         json_data = await self.send_request(
             "CMD_API_POP", {"action": "list", "domain": self._domain, "type": "quota"}
         )
@@ -67,7 +81,7 @@ class QuotasAPI:
                 value = int(value)
                 quotas[account][key] = int(value)
 
-            quota = quotas[account].get("quota", 0)
+            quota = quotas[account].get("quota", None)
             usage = quotas[account].get("usage", 0)
 
             percentage_usage = round(usage / quota * 100, 1) if quota else None
@@ -89,12 +103,11 @@ class QuotasAPI:
             raise DirectAdminConnectionError(
                 "Authentication failed or connection error."
             ) from e
-        
+
     def __check_hostname(self):
         pattern = re.compile(r"^[a-zA-Z0-9.-]+$")  # Simple regex to validate hostname
         if not pattern.match(self._hostname):
             raise InvalidHostnameException("Invalid hostname format")
-
 
     async def test_domain(self):
         """Test if the given domain is valid."""
@@ -134,6 +147,7 @@ class DirectAdminAuthError(Exception):
 
 class DomainNotFoundError(Exception):
     """Exception raised when the specified domain is not found."""
+
 
 class InvalidHostnameException(Exception):
     """Exception raised for invalid hostname format."""

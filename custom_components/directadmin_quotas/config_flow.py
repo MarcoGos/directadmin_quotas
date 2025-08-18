@@ -93,8 +93,9 @@ class DirectAdminQuotasOptionsFlowHandler(config_entries.OptionsFlow):
         )
         accounts = []
         quotas = await api.get_quotas()
-        for account in sorted(quotas.keys()):
-            accounts.append(account)
+        if quotas:
+            for account in sorted(quotas.keys()):
+                accounts.append(account)
 
         data_schema = vol.Schema(
             {vol.Required(CONF_ACCOUNTS): config_validation.multi_select(accounts)}
@@ -172,10 +173,11 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
             errors=errors,
         )
-    
+
     async def async_step_domain(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
+        """Handle the domain step."""
         errors: dict[str, str] | None = {}
 
         if user_input is not None:
@@ -218,9 +220,7 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
         domains = await api.get_domains()
 
-        data_schema = vol.Schema(
-            {vol.Required(CONF_DOMAIN): vol.In(domains)}
-        )
+        data_schema = vol.Schema({vol.Required(CONF_DOMAIN): vol.In(domains)})
 
         return self.async_show_form(step_id="domain", data_schema=data_schema)
 
@@ -247,8 +247,9 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
         accounts = []
         quotas = await api.get_quotas()
-        for account in sorted(quotas.keys()):
-            accounts.append(account)
+        if quotas:
+            for account in sorted(quotas.keys()):
+                accounts.append(account)
 
         data_schema = vol.Schema(
             {vol.Required(CONF_ACCOUNTS): config_validation.multi_select(accounts)}
@@ -261,7 +262,7 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle a reconfiguration flow initialized by the user."""
         errors: dict[str, str] | None = {}
-        entry = self.hass.config_entries.async_get_entry(self.context["entry_id"]) # type: ignore
+        entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])  # type: ignore
         entry_data = entry.data if entry else {}
 
         if user_input is not None:
@@ -323,4 +324,3 @@ class DirectAdminQuotasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> DirectAdminQuotasOptionsFlowHandler:
         """Options callback for DirectAdmin Quotas."""
         return DirectAdminQuotasOptionsFlowHandler()
-
