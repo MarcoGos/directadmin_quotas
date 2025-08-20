@@ -57,17 +57,17 @@ Each selected account will show up as a device.
 The following entities will be created per account (device):
 
 - Quota:
-    - Quota setup for account. Value will be Unknown if no quota is set.
+    - Quota setup for account[^4]
 - Free:
-    - Total free space[^1]
+    - Total free space[^1] [^4]
 - Free (%)
-    - Percentage free space based on quota[^2]
+    - Percentage free space based on quota[^2] [^4]
 - Used:
     - Total used space
 - Used (%): 
-    - Percentage used based on quota
+    - Percentage used based on quota[^4]
 - Send Limit:
-    - Max. number of mails to send per day
+    - Max. number of mails to send per day[^5]
 - Sent:
     - Number of mails sent today
 
@@ -80,6 +80,8 @@ No problem known thus far.
 [^1]: Is calculated by Quota - Used
 [^2]: Is calculated by substracting 100% - Used (%)
 [^3]: Source Wikipedia
+[^4]: Value will be Unknown if no quota is set.
+[^5]: Value will be Unknown if no limit is set.
 
 [commits-shield]: https://img.shields.io/github/commit-activity/y/MarcoGos/directadmin_quotas.svg?style=for-the-badge
 [commits]: https://github.com/MarcoGos/directadmin_quotas/commits/main

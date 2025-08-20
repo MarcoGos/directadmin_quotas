@@ -78,8 +78,12 @@ class QuotasAPI:
             quotas[account] = {}
             for info in value.split("&"):
                 key, value = info.split("=")
-                value = int(value)
-                quotas[account][key] = int(value)
+                if value.isdigit():
+                    value = int(value)
+                    if key in ["quota", "limit"]:
+                        if value == 0:
+                            value = None
+                quotas[account][key] = value
 
             quota = quotas[account].get("quota", None)
             usage = quotas[account].get("usage", 0)
